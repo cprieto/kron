@@ -4,7 +4,7 @@ from job import job as job_commands
 
 
 @click.group()
-@click.option("--server", envvar="KRONBUTE_URL", default='http://localhost:8080', help='Kronbute server url')
+@click.option("--server", envvar="KRONBUTE_SERVER", default='http://localhost:8080', help='Kronbute server url')
 @click.pass_context
 def cli(ctx, server: str):
     server = Kronbute(server)

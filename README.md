@@ -52,4 +52,10 @@ Kron is a Python 3 application, so first make sure you have python installed. Yo
 pip install kron
 ```
 
+## Kron is failing with something regarding the server, what could be wrong?
+
+You need to tell Kron where is your Kronbute server, by default is pointing to `localhost:8080`, if you want to test another server, you have two options:
+
+ - Pass the parameter `--server` with the address for the server, for example `kron --server http://anotherserver.com job list`
+ - Set the _environment variable_ `KRONBUTE_SERVER` with the address of the server
 
