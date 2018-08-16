@@ -49,7 +49,15 @@ The available verbs for the area `job` are:
 Kron is a Python 3 application, so first make sure you have python installed. You can install Kron using `pip`:
 
 ```sh
-pip install kron
+pip install git+https://github.com/cprieto/kron.git
+```
+
+## How do I upgrade Kron?
+
+Again, this is easy using Pip:
+
+```sh
+pip install --upgrade git+https://github.com/cprieto/kron.git
 ```
 
 ## Kron is failing with something regarding the server, what could be wrong?
