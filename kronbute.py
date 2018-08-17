@@ -9,9 +9,10 @@ regex = re.compile(r"hello!, version: (?P<version>.*)")
 
 
 class ServerException(Exception):
-    def __init__(self, message: str, code: Optional[int]):
+    def __init__(self, message: str, code: Optional[int], body: str):
         super().__init__(message)
         self.code = code
+        self.body = body
 
 
 class Kronbute:
@@ -22,7 +23,7 @@ class Kronbute:
     def version(self) -> str:
         res = requests.get(urllib.parse.urljoin(self.url, 'hello'))
         if res.status_code != 200:
-            raise ServerException(f'Server returned an invalid version or answer', res.status_code)
+            raise ServerException(f'Server returned an invalid version or answer', res.status_code, res.text)
 
         match = regex.match(res.text)
         version = match.group('version')
@@ -32,7 +33,7 @@ class Kronbute:
     def list_jobs(self) -> List[Dict[str, str]]:
         res = requests.get(urllib.parse.urljoin(self.url, 'api/jobs'))
         if res.status_code != 200:
-            raise ServerException(f'Error when requesting info to server', res.status_code)
+            raise ServerException(f'Error when requesting info to server', res.status_code, res.text)
         data = res.json()
 
         return data
@@ -44,7 +45,7 @@ class Kronbute:
 
         res = requests.post(urllib.parse.urljoin(self.url, 'api/jobs'), json=data)
         if res.status_code != 201:
-            raise ServerException(f'Error when requesting info to server', res.status_code)
+            raise ServerException(f'Error when requesting info to server', res.status_code, res.text)
 
         data = res.json()
 
@@ -53,7 +54,7 @@ class Kronbute:
     def get_job(self, job_id: int) -> Dict[str, str]:
         res = requests.get(urllib.parse.urljoin(self.url, f'api/jobs/{job_id}'))
         if res.status_code != 200:
-            raise ServerException("Error when retrieving job from server", res.status_code)
+            raise ServerException("Error when retrieving job from server", res.status_code, res.text)
 
         return res.json()
 
@@ -65,13 +66,13 @@ class Kronbute:
         res = requests.put(urllib.parse.urljoin(self.url, f'api/jobs/{job_id}'), json=data)
 
         if res.status_code != 202:
-            raise ServerException(f'Error when requesting info to server, {res.status_code}', res.status_code)
+            raise ServerException(f'Error when requesting info to server, {res.status_code}', res.status_code, res.text)
 
     def delete_job(self, job_id: int):
         res = requests.delete(urllib.parse.urljoin(self.url, f'api/jobs/{job_id}'))
 
         if res.status_code != 204:
-            raise ServerException(f'Error when requesting info to server, {res.status_code}', res.status_code)
+            raise ServerException(f'Error when requesting info to server, {res.status_code}', res.status_code, res.text)
 
 
 pass_server = click.make_pass_decorator(Kronbute)

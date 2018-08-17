@@ -1,6 +1,6 @@
 from typing import Optional, TextIO, Dict, Tuple
 import click
-from kronbute import Kronbute, pass_server
+from kronbute import Kronbute, pass_server, ServerException
 from terminaltables import SingleTable, AsciiTable
 
 import util
@@ -15,12 +15,15 @@ def job(server: Kronbute):
 @job.command('list', help='List all the jobs in the server')
 @pass_server
 def list_(server: Kronbute):
-    jobs = server.list_jobs()
-    data = [['Id', 'Name/Description', 'Schedule', 'Cron entry']]
-    for job in jobs:
-        data.append([job['id'], job['name'], job['schedule'], job['cron']])
-    table = AsciiTable(data)
-    click.echo(table.table)
+    try:
+        jobs = server.list_jobs()
+        data = [['Id', 'Name/Description', 'Schedule', 'Cron entry']]
+        for job in jobs:
+            data.append([job['id'], job['name'], job['schedule'], job['cron']])
+        table = AsciiTable(data)
+        click.echo(table.table)
+    except ServerException as err:
+        click.echo(util.error("Problem when trying to retrieve job list", err), err=True)
 
 
 @job.command(help='View information about a job with given id')
@@ -53,6 +56,7 @@ def view(server: Kronbute, job_id: int):
 def process_job(ctx, _, value):
     server = ctx.obj
     ctx.job = server.get_job(value)
+    return value
 
 
 def set_default(param):
@@ -85,7 +89,11 @@ def parse_env(values: Tuple[str], env_file: Optional[TextIO]) -> Dict[str, str]:
 @pass_server
 def edit(server: Kronbute, job_id: int, name: str, image: str, tag: str, schedule: str, environment: Tuple[str],
          env_file: TextIO, entrypoint: str):
-    server.edit_job(job_id, name, image, tag, schedule,  parse_env(environment, env_file), entrypoint)
+    try:
+        server.edit_job(job_id, name, image, tag, schedule,  parse_env(environment, env_file), entrypoint)
+    except ServerException as err:
+        click.echo(util.error(f'Problem when updating job {job_id}', err), err=True)
+
     message = click.style(f'{job_id}', fg='white', bold=True)
     click.echo(util.success(f"Job with id {message} edited."))
 
@@ -101,7 +109,11 @@ def edit(server: Kronbute, job_id: int, name: str, image: str, tag: str, schedul
 @pass_server
 def create(server: Kronbute, name: str, image: str, tag: str, schedule: str, environment: Tuple[str], env_file: TextIO,
            entrypoint: str):
-    job_id = server.create_job(name, image, tag, schedule, parse_env(environment, env_file), entrypoint)
+    try:
+        job_id = server.create_job(name, image, tag, schedule, parse_env(environment, env_file), entrypoint)
+    except ServerException as err:
+        click.echo(util.error('Problem when creating job', err), err=True)
+
     message = click.style(f'{job_id}', fg='white', bold=True)
     click.echo(util.success(f"Job created, id is {message}."))
 
@@ -111,6 +123,10 @@ def create(server: Kronbute, name: str, image: str, tag: str, schedule: str, env
 @pass_server
 def delete(server: Kronbute, job_id: int):
     if click.confirm(f"Do you really want to delete job {job_id}?"):
-        server.delete_job(job_id)
+        try:
+            server.delete_job(job_id)
+        except ServerException as err:
+            click.echo(util.error(f"Problem when deleting job {job_id}", err))
+
         message = click.style(f'{job_id}', fg='white', bold=True)
         click.echo(util.success(f"Job {message} was deleted."))
