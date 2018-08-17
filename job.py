@@ -6,13 +6,13 @@ from terminaltables import SingleTable, AsciiTable
 import util
 
 
-@click.group()
+@click.group(help='Group for all the commands related to jobs')
 @pass_server
 def job(server: Kronbute):
     pass
 
 
-@job.command('list')
+@job.command('list', help='List all the jobs in the server')
 @pass_server
 def list_(server: Kronbute):
     jobs = server.list_jobs()
@@ -23,7 +23,7 @@ def list_(server: Kronbute):
     click.echo(table.table)
 
 
-@job.command()
+@job.command(help='View information about a job with given id')
 @click.argument('job_id', type=int, required=True)
 @pass_server
 def view(server: Kronbute, job_id: int):
@@ -72,7 +72,7 @@ def parse_env(values: Tuple[str], env_file: Optional[TextIO]) -> Dict[str, str]:
     return res
 
 
-@job.command()
+@job.command(help="Edit a job with a given job id")
 @click.argument('job_id', type=int, required=True, callback=process_job)
 @click.option('--name', help='Name or description for the job', required=True, prompt=True, default=set_default('name'))
 @click.option('--image', help='Docker image for the job', required=True, prompt=True, default=set_default('image'))
@@ -90,7 +90,7 @@ def edit(server: Kronbute, job_id: int, name: str, image: str, tag: str, schedul
     click.echo(util.success(f"Job with id {message} edited."))
 
 
-@job.command()
+@job.command(help='Create a job in the server')
 @click.option('--name', help='Name or description for the job', required=True, prompt=True)
 @click.option('--image', help='Docker image for the job', required=True, prompt=True)
 @click.option('--tag', help='Docker image tag to use for the job', default='latest', prompt=True)
@@ -106,7 +106,7 @@ def create(server: Kronbute, name: str, image: str, tag: str, schedule: str, env
     click.echo(util.success(f"Job created, id is {message}."))
 
 
-@job.command()
+@job.command(help='Delete a job in the server, this operation has no undo.')
 @click.argument('job_id', type=int, required=True)
 @pass_server
 def delete(server: Kronbute, job_id: int):
