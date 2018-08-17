@@ -1,6 +1,7 @@
 import click
 from kronbute import Kronbute
 from job import job as job_commands
+from info import info as info_command
 
 
 @click.group()
@@ -12,6 +13,7 @@ def cli(ctx, server: str):
 
 
 cli.add_command(job_commands)
+cli.add_command(info_command)
 
 if __name__ == '__main__':
     cli()

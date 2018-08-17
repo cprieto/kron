@@ -67,3 +67,11 @@ You need to tell Kron where is your Kronbute server, by default is pointing to `
  - Pass the parameter `--server` with the address for the server, for example `kron --server http://anotherserver.com job list`
  - Set the _environment variable_ `KRONBUTE_SERVER` with the address of the server
 
+## How do I know what version am I running?
+
+For this we have the noun `version`, this will display in a nice way the version of the tool and Kronbute server we are connecting to.
+
+```sh
+kron info
+```
+

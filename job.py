@@ -35,6 +35,7 @@ def view(server: Kronbute, job_id: int):
         ['Image:tag', f'{current_job["image"]}:{current_job["tag"]}'],
         ['Schedule', current_job['schedule']],
         ['Cron entry', current_job['cron']],
+        ['EntryPoint', current_job['entryPoint']],
         ['Created on', current_job['createdOn']]]
 
     if 'environment' in current_job and len(current_job['environment']) > 0:
@@ -80,10 +81,11 @@ def parse_env(values: Tuple[str], env_file: Optional[TextIO]) -> Dict[str, str]:
               default=set_default('cron'))
 @click.option('--environment', '-e', help='Environment variable to set in form key=value', multiple=True)
 @click.option('--env-file', help='env file with environment variables to set', type=click.File('r'))
+@click.option('--entrypoint', help='Entrypoint for the docker command', prompt=True, default=set_default('entryPoint'))
 @pass_server
 def edit(server: Kronbute, job_id: int, name: str, image: str, tag: str, schedule: str, environment: Tuple[str],
-         env_file: TextIO):
-    server.edit_job(job_id, name, image, tag, schedule,  parse_env(environment, env_file))
+         env_file: TextIO, entrypoint: str):
+    server.edit_job(job_id, name, image, tag, schedule,  parse_env(environment, env_file), entrypoint)
     message = click.style(f'{job_id}', fg='white', bold=True)
     click.echo(util.success(f"Job with id {message} edited."))
 
@@ -93,11 +95,13 @@ def edit(server: Kronbute, job_id: int, name: str, image: str, tag: str, schedul
 @click.option('--image', help='Docker image for the job', required=True, prompt=True)
 @click.option('--tag', help='Docker image tag to use for the job', default='latest', prompt=True)
 @click.option('--schedule', help='Cron schedule for the job, in UNIX cron format', required=True, prompt=True)
+@click.option('--entrypoint', help='Entrypoint for the docker command', prompt=True)
 @click.option('--environment', '-e', help='Environment variable to set in form key=value', multiple=True)
 @click.option('--env-file', help='env file with environment variables to set', type=click.File('r'))
 @pass_server
-def create(server: Kronbute, name: str, image: str, tag: str, schedule: str, environment: Tuple[str], env_file: TextIO):
-    job_id = server.create_job(name, image, tag, schedule, parse_env(environment, env_file))
+def create(server: Kronbute, name: str, image: str, tag: str, schedule: str, environment: Tuple[str], env_file: TextIO,
+           entrypoint: str):
+    job_id = server.create_job(name, image, tag, schedule, parse_env(environment, env_file), entrypoint)
     message = click.style(f'{job_id}', fg='white', bold=True)
     click.echo(util.success(f"Job created, id is {message}."))
 

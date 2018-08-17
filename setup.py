@@ -12,7 +12,7 @@ setup(name='kron',
       long_description_content_type='text/markdown',
       url='https://github.com/healthcarecom/kron',
       author='Healthcare.com Inc.',
-      py_modules=['main', 'job', 'kronbute', 'util'],
+      py_modules=['main', 'job', 'kronbute', 'util', 'info'],
       python_requires=">=3.6.5",
       install_requires=[
           'jsonpickle',
@@ -20,7 +20,8 @@ setup(name='kron',
           'colorama',
           'click',
           'coloredlogs',
-          'terminaltables'
+          'terminaltables',
+          'pyfiglet'
       ],
       package_data={},
       entry_points={

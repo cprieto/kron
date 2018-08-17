@@ -1,8 +1,11 @@
+import re
 import urllib.parse
 from typing import Optional, Dict, List
 
 import click
 import requests
+
+regex = re.compile(r"hello!, version: (?P<version>.*)")
 
 
 class ServerException(Exception):
@@ -15,6 +18,17 @@ class Kronbute:
     def __init__(self, url: str):
         self.url = url
 
+    @property
+    def version(self) -> str:
+        res = requests.get(urllib.parse.urljoin(self.url, 'hello'))
+        if res.status_code != 200:
+            raise ServerException(f'Server returned an invalid version or answer', res.status_code)
+
+        match = regex.match(res.text)
+        version = match.group('version')
+
+        return version
+
     def list_jobs(self) -> List[Dict[str, str]]:
         res = requests.get(urllib.parse.urljoin(self.url, 'api/jobs'))
         if res.status_code != 200:
@@ -23,8 +37,8 @@ class Kronbute:
 
         return data
 
-    def create_job(self, name: str, image: str, tag: str, schedule: str, env: Dict[str, str]) -> int:
-        data = {'name': name, 'image': image, 'tag': tag, 'schedule': schedule}
+    def create_job(self, name: str, image: str, tag: str, schedule: str, env: Dict[str, str], entrypoint: str) -> int:
+        data = {'name': name, 'image': image, 'tag': tag, 'schedule': schedule, 'entryPoint': entrypoint}
         if len(env) > 0:
             data['environment'] = [{'key': key, 'value': value or ''} for key, value in env.items()]
 
@@ -43,8 +57,8 @@ class Kronbute:
 
         return res.json()
 
-    def edit_job(self, job_id: int, name: str, image: str, tag: str, schedule: str, env: Dict[str, str]) -> None:
-        data = {'name': name, 'image': image, 'tag': tag, 'schedule': schedule, 'environment': []}
+    def edit_job(self, job_id: int, name: str, image: str, tag: str, schedule: str, env: Dict[str, str], entrypoint: str) -> None:
+        data = {'name': name, 'image': image, 'tag': tag, 'schedule': schedule, 'environment': [], 'entryPoint': entrypoint}
         if len(env) > 0:
             data['environment'] = [{'key': key, 'value': value or ''} for key, value in env.items()]
 
