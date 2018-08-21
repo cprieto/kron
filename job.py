@@ -76,13 +76,33 @@ def parse_env(values: Tuple[str], env_file: Optional[TextIO]) -> Dict[str, str]:
     return res
 
 
+@job.command(help='Create a job in the server')
+@click.option('--name', help='Name or description for the job', required=True, prompt=True)
+@click.option('--image', help='Docker image for the job', required=True, prompt=True)
+@click.option('--tag', help='Docker image tag to use for the job', default='latest')
+@click.option('--schedule', help='Cron schedule for the job, in UNIX cron format', required=True, prompt=True, type=util.CRON)
+@click.option('--entrypoint', help='Entrypoint for the docker command', required=False)
+@click.option('--environment', '-e', help='Environment variable to set in form key=value', multiple=True)
+@click.option('--env-file', help='env file with environment variables to set', type=click.File('r'))
+@pass_server
+def create(server: Kronbute, name: str, image: str, tag: str, schedule: str, environment: Tuple[str], env_file: TextIO,
+           entrypoint: str):
+    try:
+        job_id = server.create_job(name, image, tag, schedule, parse_env(environment, env_file), entrypoint)
+    except ServerException as err:
+        click.echo(util.error('Problem when creating job', err), err=True)
+
+    message = click.style(f'{job_id}', fg='white', bold=True)
+    click.echo(util.success(f"Job created, id is {message}."))
+
+
 @job.command(help="Edit a job with a given job id")
 @click.argument('job_id', type=int, required=True, callback=process_job)
 @click.option('--name', help='Name or description for the job', required=True, prompt=True, default=set_default('name'))
 @click.option('--image', help='Docker image for the job', required=True, prompt=True, default=set_default('image'))
 @click.option('--tag', help='Docker image tag to use for the job', prompt=True, default=set_default('tag'))
 @click.option('--schedule', help='Cron schedule for the job, in UNIX cron format', required=True, prompt=True,
-              default=set_default('cron'))
+              default=set_default('cron'), type=util.CRON)
 @click.option('--environment', '-e', help='Environment variable to set in form key=value', multiple=True)
 @click.option('--env-file', help='env file with environment variables to set', type=click.File('r'))
 @click.option('--entrypoint', help='Entrypoint for the docker command', prompt=True, default=set_default('entryPoint'))
@@ -96,26 +116,6 @@ def edit(server: Kronbute, job_id: int, name: str, image: str, tag: str, schedul
 
     message = click.style(f'{job_id}', fg='white', bold=True)
     click.echo(util.success(f"Job with id {message} edited."))
-
-
-@job.command(help='Create a job in the server')
-@click.option('--name', help='Name or description for the job', required=True, prompt=True)
-@click.option('--image', help='Docker image for the job', required=True, prompt=True)
-@click.option('--tag', help='Docker image tag to use for the job', default='latest', prompt=True)
-@click.option('--schedule', help='Cron schedule for the job, in UNIX cron format', required=True, prompt=True)
-@click.option('--entrypoint', help='Entrypoint for the docker command', prompt=True)
-@click.option('--environment', '-e', help='Environment variable to set in form key=value', multiple=True)
-@click.option('--env-file', help='env file with environment variables to set', type=click.File('r'))
-@pass_server
-def create(server: Kronbute, name: str, image: str, tag: str, schedule: str, environment: Tuple[str], env_file: TextIO,
-           entrypoint: str):
-    try:
-        job_id = server.create_job(name, image, tag, schedule, parse_env(environment, env_file), entrypoint)
-    except ServerException as err:
-        click.echo(util.error('Problem when creating job', err), err=True)
-
-    message = click.style(f'{job_id}', fg='white', bold=True)
-    click.echo(util.success(f"Job created, id is {message}."))
 
 
 @job.command(help='Delete a job in the server, this operation has no undo.')
