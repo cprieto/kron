@@ -74,5 +74,13 @@ class Kronbute:
         if res.status_code != 204:
             raise ServerException(f'Error when requesting info to server, {res.status_code}', res.status_code, res.text)
 
+    def list_runs(self):
+        res = requests.get(urllib.parse.urljoin(self.url, 'api/runs'))
+        if res.status_code != 200:
+            raise ServerException(f'Error when requesting info to server', res.status_code, res.text)
+        data = res.json()
+
+        return data
+
 
 pass_server = click.make_pass_decorator(Kronbute)
