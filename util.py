@@ -59,3 +59,12 @@ class CronParamType(click.ParamType):
 
 
 CRON = CronParamType()
+
+
+def format_status(status: str) -> str:
+    colors = {
+        "FAILED": 'red',
+        "SUCCESS": 'green',
+        "RUNNING": 'yellow'
+    }
+    return click.style(status, fg=(colors[status] if status in colors else None))

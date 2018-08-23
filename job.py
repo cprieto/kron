@@ -17,9 +17,12 @@ def job(server: Kronbute):
 def list_(server: Kronbute):
     try:
         jobs = server.list_jobs()
-        data = [['Id', 'Name/Description', 'Schedule', 'Cron entry', 'Last Status', 'Status on']]
+        data = [['Id', 'Name/Description', 'Schedule', 'Cron entry', 'Last Status', 'Status on', 'Next run']]
         for job in jobs:
-            data.append([job['id'], job['name'], job['schedule'], job['cron'], job['lastStatus'], job['statusUpdateOn']])
+            data.append(
+                [job['id'], job['name'], job['schedule'], job['cron'],
+                 util.format_status(job['lastStatus']), job['statusUpdateOn'], job['nextRun']])
+
         table = AsciiTable(data)
         click.echo(table.table)
     except ServerException as err:
@@ -40,8 +43,9 @@ def view(server: Kronbute, job_id: int):
         ['Cron entry', current_job['cron']],
         ['EntryPoint', current_job['entryPoint']],
         ['Created on', current_job['createdOn']],
-        ['Last status', current_job['lastStatus']],
-        ['Updated on', current_job['statusUpdateOn']]]
+        ['Last status', util.format_status(current_job['lastStatus'])],
+        ['Updated on', current_job['statusUpdateOn']],
+        ['Next run on', current_job['nextRun']]]
 
     if 'environment' in current_job and len(current_job['environment']) > 0:
         e = SingleTable([[key, value] for key, value in current_job['environment'].items()])
