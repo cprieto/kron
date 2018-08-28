@@ -12,7 +12,7 @@ setup(name='kron',
       long_description_content_type='text/markdown',
       url='https://github.com/healthcarecom/kron',
       author='Healthcare.com Inc.',
-      py_modules=['main', 'job', 'kronbute', 'util', 'info'],
+      py_modules=['main', 'job', 'kronbute', 'util', 'info', 'runs'],
       python_requires=">=3.6.5",
       install_requires=[
           'jsonpickle',
