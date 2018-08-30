@@ -2,7 +2,7 @@ from os import path
 from setuptools import setup, find_packages
 
 here = path.abspath(path.dirname(__file__))
-with open(path.join(here, 'Readme.md')) as f:
+with open(path.join(here, 'README.md')) as f:
     long_description = f.read()
 
 setup(name='kron',
