@@ -12,7 +12,7 @@ def info(server: Kronbute):
     click.echo(click.style(name.renderText('Kron'), fg='white', bold=True))
 
     info_table = SingleTable([
-        ['Kron version', '1.0'],
+        ['Kron version', '1.1'],
         ['Kronbute version', server.version],
         ['Kronbute server', server.url]
     ])

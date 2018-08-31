@@ -1,9 +1,10 @@
 import re
+import sys
 import click
-from typing import Optional
+from typing import Optional, Any
 
 
-from kronbute import ServerException
+from kronbute import ServerException, NotFoundException, ArgumentValidationException
 
 
 def success(text: str) -> str:
@@ -53,7 +54,7 @@ class CronParamType(click.ParamType):
 
         parsed = CronEvaluator(value).parse()
         if parsed is None:
-            self.fail("This doesn't look like a cron expression", value)
+            self.fail(f"'{value}' is not a cron expression", ctx=ctx)
 
         return parsed
 
@@ -68,3 +69,29 @@ def format_status(status: str) -> str:
         "RUNNING": 'yellow'
     }
     return click.style(status, fg=(colors[status] if status in colors else None))
+
+
+class AtLeastOneParameterException(Exception):
+    pass
+
+
+class KronbuteExceptionHandler(click.Group):
+    def __call__(self, *args, **kwargs):
+        try:
+            self.main(*args, **kwargs)
+        except AtLeastOneParameterException:
+            click.secho("[ERROR] You should provide at least one parameter", err=True, fg='red')
+            sys.exit(-1)
+        except NotFoundException as not_found:
+            click.secho(f"[ERROR] {not_found.entity} with query {not_found.query} not found", err=True, fg='red')
+            sys.exit(-1)
+        except ArgumentValidationException as validation:
+            click.secho(f"[ERROR] Invalid argument(s): {validation.message}", err=True, fg='red')
+            sys.exit(-1)
+        except ServerException as ex:
+            click.secho(f"[ERROR] Server returned unexpected code {ex.code}", err=True, fg='red')
+            sys.exit(-1)
+
+
+def at_least_one(*args: Optional[Any]) -> bool:
+    return any(x for x in args if x)
