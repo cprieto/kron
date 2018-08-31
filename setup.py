@@ -6,7 +6,7 @@ with open(path.join(here, 'README.md')) as f:
     long_description = f.read()
 
 setup(name='kron',
-      version='1.0',
+      version='1.2',
       description='Kron, the command line companion for Kronbute',
       long_description=long_description,
       long_description_content_type='text/markdown',
