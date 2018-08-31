@@ -123,3 +123,7 @@ class KronbuteExceptionHandler(click.Group):
 
 def at_least_one(*args: Optional[Any]) -> bool:
     return any(x for x in args if x)
+
+
+def format_none(value: Optional[Any]) -> str:
+    return value if value else ''

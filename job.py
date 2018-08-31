@@ -1,4 +1,4 @@
-from typing import Optional, TextIO, Dict, Tuple
+from typing import Optional, TextIO, Dict, Tuple, Union
 import click
 from kronbute import Kronbute, pass_server, ServerError
 from terminaltables import SingleTable, AsciiTable
@@ -16,11 +16,11 @@ def job(server: Kronbute):
 @pass_server
 def list_(server: Kronbute):
     jobs = server.list_jobs()
-    data = [['Id', 'Name/Description', 'Schedule', 'Cron entry', 'Last Status', 'Status on', 'Next run']]
+    data = [['Id', 'Alias', 'Name/Description', 'Schedule', 'Cron entry', 'Last Status', 'Status on', 'Next run']]
     for job in jobs:
         data.append(
-            [job['id'], job['name'], job['schedule'], job['cron'],
-             util.format_status(job['lastStatus']), job['statusUpdateOn'], job['nextRun']])
+            [job['id'], util.format_none(job['alias'] if 'alias' in job else ''), job['name'], job['schedule'],
+             job['cron'], util.format_status(job['lastStatus']), job['statusUpdateOn'], job['nextRun']])
 
     table = AsciiTable(data)
     click.echo(table.table)
@@ -29,16 +29,17 @@ def list_(server: Kronbute):
 @job.command(help='View information about a job with given id')
 @click.argument('job_id', type=int, required=True)
 @pass_server
-def view(server: Kronbute, job_id: int):
+def view(server: Kronbute, job_id: Union[int, str]):
     current_job = server.get_job(job_id)
 
     data = [
         ['Id', job_id],
         ['Name/Description', current_job['name']],
+        ['Alias', util.format_none(current_job['alias'] if 'alias' in current_job else '')],
         ['Image:tag', f'{current_job["image"]}:{current_job["tag"]}'],
         ['Schedule', current_job['schedule']],
         ['Cron entry', current_job['cron']],
-        ['EntryPoint', current_job['entryPoint']],
+        ['EntryPoint', util.format_none(current_job['entryPoint'])],
         ['Created on', current_job['createdOn']],
         ['Last status', util.format_status(current_job['lastStatus'])],
         ['Updated on', current_job['statusUpdateOn']],
