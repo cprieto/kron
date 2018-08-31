@@ -1,7 +1,7 @@
 import re
 import sys
 import click
-from typing import Optional, Any
+from typing import Optional, Any, Union
 
 import requests
 
@@ -62,7 +62,6 @@ class CronParamType(click.ParamType):
 
 CRON = CronParamType()
 
-
 alias_regex = re.compile(r'^[A-Za-z][A-Za-z\d_]*$')
 
 
@@ -76,6 +75,30 @@ class AliasParamType(click.ParamType):
 
 
 ALIAS = AliasParamType()
+
+
+class IntOrAliasParamType(click.ParamType):
+    name = 'IdOrAlias'
+
+    def convert(self, value, param, ctx) -> Union[int, str]:
+        parsed = None
+        try:
+            parsed = click.INT.convert(value, param, ctx)
+        except click.exceptions.BadParameter:
+            pass
+
+        try:
+            parsed = ALIAS.convert(value, param, ctx)
+        except click.exceptions.BadParameter:
+            pass
+
+        if not parsed:
+            self.fail("Neither a valid id or valid alias")
+
+        return parsed
+
+
+INT_ALIAS = IntOrAliasParamType()
 
 
 def format_status(status: str) -> str:

@@ -79,7 +79,7 @@ class Kronbute:
 
         return data
 
-    def get_job(self, job_id: int) -> Dict[str, str]:
+    def get_job(self, job_id: Union[int, str]) -> Dict[str, str]:
         res = requests.get(urllib.parse.urljoin(self.url, f'api/jobs/{job_id}'))
         if res.status_code == 404:
             raise NotFoundError(job_id)
@@ -89,7 +89,9 @@ class Kronbute:
 
         return res.json()
 
-    def edit_job(self, job_id: int, name: Optional[str], image: Optional[str], tag: Optional[str], schedule: Optional[str], env: Optional[Dict[str, str]], entrypoint: Optional[str]) -> None:
+    def edit_job(self, job_id: Union[int, str], name: Optional[str], image: Optional[str], tag: Optional[str],
+                 schedule: Optional[str], alias: Optional[str], env: Optional[Dict[str, str]],
+                 entrypoint: Optional[str]) -> None:
         res = requests.get(urllib.parse.urljoin(self.url, f'api/jobs/{job_id}'))
         if res.status_code == 404:
             raise NotFoundError(job_id)
@@ -101,6 +103,7 @@ class Kronbute:
             'image': image or current_job['image'],
             'tag': tag or current_job['tag'],
             'schedule': schedule or current_job['cron'],
+            'alias': alias or current_job['alias'],
             'entryPoint': entrypoint or current_job['entryPoint']
         }
 
@@ -119,7 +122,7 @@ class Kronbute:
         if res.status_code != 202:
             raise ServerError(f"Error while processing update for job:", res.status_code, res.text)
 
-    def delete_job(self, job_id: int):
+    def delete_job(self, job_id: Union[int, str]):
         res = requests.delete(urllib.parse.urljoin(self.url, f'api/jobs/{job_id}'))
 
         if res.status_code == 404:

@@ -27,13 +27,13 @@ def list_(server: Kronbute):
 
 
 @job.command(help='View information about a job with given id')
-@click.argument('job_id', type=int, required=True)
+@click.argument('job_id', type=util.INT_ALIAS, required=True)
 @pass_server
 def view(server: Kronbute, job_id: Union[int, str]):
     current_job = server.get_job(job_id)
 
     data = [
-        ['Id', job_id],
+        ['Id', current_job['id']],
         ['Name/Description', current_job['name']],
         ['Alias', util.format_none(current_job['alias'] if 'alias' in current_job else '')],
         ['Image:tag', f'{current_job["image"]}:{current_job["tag"]}'],
@@ -69,6 +69,7 @@ def parse_env(values: Tuple[str], env_file: Optional[TextIO]) -> Dict[str, str]:
             res[entry.strip('\n')] = None
     return res
 
+
 @job.command(help='Create a job in the server')
 @click.option('--name', help='Name or description for the job', required=True, prompt=True)
 @click.option('--image', help='Docker image for the job', required=True, prompt=True)
@@ -87,7 +88,7 @@ def create(server: Kronbute, name: str, image: str, tag: str, schedule: str, env
 
 
 @job.command(help="Edit a job with a given job id")
-@click.argument('job_id', type=int, required=True)
+@click.argument('job_id', type=util.INT_ALIAS, required=True)
 @click.option('--name', help='Name or description for the job')
 @click.option('--image', help='Docker image for the job')
 @click.option('--tag', help='Docker image tag to use for the job')
@@ -95,22 +96,23 @@ def create(server: Kronbute, name: str, image: str, tag: str, schedule: str, env
 @click.option('--environment', '-e', help='Environment variable to set in form key=value', multiple=True)
 @click.option('--env-file', help='env file with environment variables to set', type=click.File('r'))
 @click.option('--entrypoint', help='Entrypoint for the docker command')
+@click.option('--alias', help='Alias for the job', type=util.ALIAS)
 @pass_server
-def edit(server: Kronbute, job_id: int, name: str, image: str, tag: str, schedule: str, environment: Tuple[str],
-         env_file: TextIO, entrypoint: str):
+def edit(server: Kronbute, job_id: Union[int, str], name: str, image: str, tag: str, schedule: str,
+         environment: Tuple[str], env_file: Optional[TextIO], entrypoint: Optional[str], alias: Optional[str]):
 
-    if not util.at_least_one(name, image, tag, schedule, environment, env_file, entrypoint):
+    if not util.at_least_one(name, image, tag, schedule, environment, env_file, entrypoint, alias):
         raise util.AtLeastOneParameterError()
 
-    server.edit_job(job_id, name, image, tag, schedule, parse_env(environment, env_file), entrypoint)
+    server.edit_job(job_id, name, image, tag, schedule, alias, parse_env(environment, env_file), entrypoint)
     message = click.style(f'{job_id}', fg='white', bold=True)
     click.echo(util.success(f"Job with id {message} edited."))
 
 
 @job.command(help='Delete a job in the server, this operation has no undo.')
-@click.argument('job_id', type=int, required=True)
+@click.argument('job_id', type=util.INT_ALIAS, required=True)
 @pass_server
-def delete(server: Kronbute, job_id: int):
+def delete(server: Kronbute, job_id: Union[int, str]):
     if click.confirm(f"Do you really want to delete job {job_id}?"):
         server.delete_job(job_id)
         message = click.style(f'{job_id}', fg='white', bold=True)
