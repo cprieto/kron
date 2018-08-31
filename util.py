@@ -3,15 +3,16 @@ import sys
 import click
 from typing import Optional, Any
 
+import requests
 
-from kronbute import ServerException, NotFoundException, ArgumentValidationException
+from kronbute import ServerError, NotFoundError, ArgumentValidationError, AliasAlreadyExistsError
 
 
 def success(text: str) -> str:
     return f'\n{click.style("[SUCCESS]", fg="green")} {text}'
 
 
-def error(text: str, err: ServerException) -> str:
+def error(text: str, err: ServerError) -> str:
     msg_type = click.style('[ERROR]', fg='red')
 
     return f'{msg_type} {text}, code: {err.code}, message: {err.body}'
@@ -62,6 +63,21 @@ class CronParamType(click.ParamType):
 CRON = CronParamType()
 
 
+alias_regex = re.compile(r'^[A-Za-z][A-Za-z\d_]*$')
+
+
+class AliasParamType(click.ParamType):
+    name = 'alias'
+
+    def convert(self, value, param, ctx):
+        if not alias_regex.match(value):
+            self.fail(f'Alias supports only letters and underscores', ctx=ctx)
+        return value
+
+
+ALIAS = AliasParamType()
+
+
 def format_status(status: str) -> str:
     colors = {
         "FAILED": 'red',
@@ -71,7 +87,7 @@ def format_status(status: str) -> str:
     return click.style(status, fg=(colors[status] if status in colors else None))
 
 
-class AtLeastOneParameterException(Exception):
+class AtLeastOneParameterError(Exception):
     pass
 
 
@@ -79,18 +95,30 @@ class KronbuteExceptionHandler(click.Group):
     def __call__(self, *args, **kwargs):
         try:
             self.main(*args, **kwargs)
-        except AtLeastOneParameterException:
+
+        except requests.exceptions.ConnectionError:
+            click.secho("[ERROR] Problem when trying to connect to Kronbute server", err=True, fg='red')
+            sys.exit(10)
+
+        except AtLeastOneParameterError:
             click.secho("[ERROR] You should provide at least one parameter", err=True, fg='red')
-            sys.exit(-1)
-        except NotFoundException as not_found:
+            sys.exit(11)
+
+        except AliasAlreadyExistsError as alias:
+            click.secho(f"[ERROR] This alias is already taken: {alias.alias}", err=True, fg='red')
+            sys.exit(12)
+
+        except NotFoundError as not_found:
             click.secho(f"[ERROR] {not_found.entity} with query {not_found.query} not found", err=True, fg='red')
-            sys.exit(-1)
-        except ArgumentValidationException as validation:
+            sys.exit(13)
+
+        except ArgumentValidationError as validation:
             click.secho(f"[ERROR] Invalid argument(s): {validation.message}", err=True, fg='red')
-            sys.exit(-1)
-        except ServerException as ex:
+            sys.exit(14)
+
+        except ServerError as ex:
             click.secho(f"[ERROR] Server returned unexpected code {ex.code}", err=True, fg='red')
-            sys.exit(-1)
+            sys.exit(15)
 
 
 def at_least_one(*args: Optional[Any]) -> bool:

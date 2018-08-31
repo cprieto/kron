@@ -2,7 +2,7 @@ import click
 from terminaltables import AsciiTable
 
 import util
-from kronbute import Kronbute, pass_server, ServerException
+from kronbute import Kronbute, pass_server, ServerError
 
 
 @click.group(help='Group for all the commands related to job runs')

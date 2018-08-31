@@ -1,6 +1,6 @@
 from typing import Optional, TextIO, Dict, Tuple
 import click
-from kronbute import Kronbute, pass_server, ServerException
+from kronbute import Kronbute, pass_server, ServerError
 from terminaltables import SingleTable, AsciiTable
 
 import util
@@ -76,10 +76,11 @@ def parse_env(values: Tuple[str], env_file: Optional[TextIO]) -> Dict[str, str]:
 @click.option('--entrypoint', help='Entrypoint for the docker command', required=False)
 @click.option('--environment', '-e', help='Environment variable to set in form key=value', multiple=True)
 @click.option('--env-file', help='env file with environment variables to set', type=click.File('r'))
+@click.option('--alias', help='Optional alias for the job', type=util.ALIAS)
 @pass_server
 def create(server: Kronbute, name: str, image: str, tag: str, schedule: str, environment: Tuple[str], env_file: TextIO,
-           entrypoint: str):
-    job_id = server.create_job(name, image, tag, schedule, parse_env(environment, env_file), entrypoint)
+           entrypoint: str, alias: Optional[str] = None):
+    job_id = server.create_job(name, image, tag, schedule, parse_env(environment, env_file), entrypoint, alias)
     message = click.style(f'{job_id}', fg='white', bold=True)
     click.echo(util.success(f"Job created, id is {message}."))
 
@@ -98,7 +99,7 @@ def edit(server: Kronbute, job_id: int, name: str, image: str, tag: str, schedul
          env_file: TextIO, entrypoint: str):
 
     if not util.at_least_one(name, image, tag, schedule, environment, env_file, entrypoint):
-        raise util.AtLeastOneParameterException()
+        raise util.AtLeastOneParameterError()
 
     server.edit_job(job_id, name, image, tag, schedule, parse_env(environment, env_file), entrypoint)
     message = click.style(f'{job_id}', fg='white', bold=True)
