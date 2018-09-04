@@ -1,0 +1,9 @@
+name: Sample job
+alias: another_Sample
+image: hc/data-integration-job
+schedule: '*/5 * * * *'
+entrypoint: python3 main.py
+environment:
+  VARIABLE1: VALUE1
+  VARIABLE2:
+

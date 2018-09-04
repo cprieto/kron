@@ -1,7 +1,8 @@
 import re
 import sys
+import yaml
 import click
-from typing import Optional, Any, Union
+from typing import Optional, Any, Union, Callable
 
 import requests
 
@@ -150,3 +151,36 @@ def at_least_one(*args: Optional[Any]) -> bool:
 
 def format_none(value: Optional[Any]) -> str:
     return value if value else ''
+
+
+class SetImportFile(click.Option):
+    @staticmethod
+    def fill_context(ctx, value):
+        with open(value, 'r') as document:
+            ctx.file_defaults = yaml.load(document)
+
+    def full_process_value(self, ctx, value):
+        file_name = super().full_process_value(ctx, value)
+        if file_name:
+            self.fill_context(ctx, file_name)
+        return file_name
+
+
+class CanBeImported(click.Option):
+    def get_default(self, ctx):
+        try:
+            return ctx.file_defaults[str(self.name)]
+        except AttributeError:
+            return super().get_default(ctx)
+
+
+def can_be_imported(name: Optional[str] = None, fn: Optional[Callable[[Any], Any]] = None):
+    class CanBeImportedWith(click.Option):
+        def get_default(self, ctx):
+            try:
+                value = ctx.file_defaults[name if name else str(self.name)]
+                return fn(value) if fn else value
+            except (AttributeError, IndexError):
+                return super().get_default(ctx)
+
+    return CanBeImportedWith

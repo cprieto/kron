@@ -21,7 +21,8 @@ setup(name='kron',
           'click',
           'coloredlogs',
           'terminaltables',
-          'pyfiglet'
+          'pyfiglet',
+          'pyyaml'
       ],
       package_data={},
       entry_points={

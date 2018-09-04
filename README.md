@@ -75,3 +75,34 @@ For this we have the noun `version`, this will display in a nice way the version
 kron info
 ```
 
+## Using an import file
+
+Instead of creating or edit a job using the command line you can load one or all yoru values from a YAML file, an example of a job YAML file:
+
+```yaml
+name: Sample job
+alias: sample_job
+image: hc/data-integration-job:latest
+schedule: '*/5 * * * *'
+entrypoint: python3 main.py
+environment:
+  VARIABLE1: VALUE1
+  VARIABLE2:
+```
+
+**Notice** the way we declare the image and tag, _there is no separate entry_ for image and tag but it is declared in the docker way, `image:tag`, as in the command line, if no `tag` is declared, the default `latest` is used.
+
+Use the `--import` option when creating or editing a file with _an existing_ YAML file with the job definition (or partial job definition):
+
+```
+kron job create --import sample.yml
+```
+
+You can declare a partial file, only with the attributes you are insterested to use/edit and pass the rest from the command line, for example, you can use a file with the environment variables but pass the name from the command line.
+
+The relevance order is _command line > yaml file_, it means, if you declare the name in the YAML file but as well pass it with the `--name` option, the option from the command line will have preference _over_ the YAML file name, this is a very flexible way to declare options for edit, for example.
+
+**Remember** YAML files are very delicate with tabs and spaces, read more about YAML syntax at [this Wikipedia page](https://en.wikipedia.org/wiki/YAML)
+
+**IMPORTANT** Currently there is a bug with the way we specify YAML and environment variables all together [see](https://www.pivotaltracker.com/story/show/160248865), so if you provide YAML and the environment variable parameter at the same time it will use _only_ the parameters from the command line.
+

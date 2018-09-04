@@ -1,5 +1,6 @@
 from typing import Optional, TextIO, Dict, Tuple, Union
 import click
+import yaml
 from kronbute import Kronbute, pass_server, ServerError
 from terminaltables import SingleTable, AsciiTable
 
@@ -57,10 +58,13 @@ def view(server: Kronbute, job_id: Union[int, str]):
     click.echo(table.table)
 
 
-def parse_env(values: Tuple[str], env_file: Optional[TextIO]) -> Dict[str, str]:
-    res = {}
+def parse_env(values: Union[Tuple[str],Dict[str, str]], env_file: Optional[TextIO]) -> Dict[str, str]:
+    if isinstance(values, dict):
+        return values
+
     entries = (env_file.readlines() if env_file else []) + list(values)
 
+    res = {}
     for entry in entries:
         if '=' in entry:
             key, value = entry.split('=', 1)
@@ -71,16 +75,23 @@ def parse_env(values: Tuple[str], env_file: Optional[TextIO]) -> Dict[str, str]:
 
 
 @job.command(help='Create a job in the server')
-@click.option('--name', help='Name or description for the job', required=True, prompt=True)
-@click.option('--image', help='Docker image for the job', required=True, prompt=True)
-@click.option('--tag', help='Docker image tag to use for the job', default='latest')
-@click.option('--schedule', help='Cron schedule for the job, in UNIX cron format', required=True, prompt=True, type=util.CRON)
-@click.option('--entrypoint', help='Entrypoint for the docker command', required=False)
-@click.option('--environment', '-e', help='Environment variable to set in form key=value', multiple=True)
+@click.option('--import', help='Import file for job', cls=util.SetImportFile, type=click.Path(exists=True),
+              expose_value=False)
+@click.option('--name', help='Name or description for the job', required=True, cls=util.CanBeImported)
+@click.option('--image', help='Docker image for the job', required=True,
+              cls=util.can_be_imported(name='image', fn=lambda x: x.split(':')[0]))
+@click.option('--tag', help='Docker image tag to use for the job', default='latest',
+              cls=util.can_be_imported(name='image', fn=lambda x: x.split(':')[1]))
+@click.option('--schedule', help='Cron schedule for the job, in UNIX cron format', required=True, type=util.CRON,
+              cls=util.CanBeImported)
+@click.option('--entrypoint', help='Entrypoint for the docker command', required=False, type=util.CanBeImported)
+@click.option('--environment', '-e', help='Environment variable to set in form key=value', multiple=True,
+              cls=util.CanBeImported)
 @click.option('--env-file', help='env file with environment variables to set', type=click.File('r'))
-@click.option('--alias', help='Optional alias for the job', type=util.ALIAS)
+@click.option('--alias', help='Optional alias for the job', type=util.ALIAS, cls=util.CanBeImported)
 @pass_server
-def create(server: Kronbute, name: str, image: str, tag: str, schedule: str, environment: Tuple[str], env_file: TextIO,
+def create(server: Kronbute, name: str, image: str, tag: str, schedule: str,
+           environment: Union[Tuple[str], Dict[str, str]], env_file: TextIO,
            entrypoint: str, alias: Optional[str] = None):
     job_id = server.create_job(name, image, tag, schedule, parse_env(environment, env_file), entrypoint, alias)
     message = click.style(f'{job_id}', fg='white', bold=True)
@@ -89,14 +100,21 @@ def create(server: Kronbute, name: str, image: str, tag: str, schedule: str, env
 
 @job.command(help="Edit a job with a given job id")
 @click.argument('job_id', type=util.INT_ALIAS, required=True)
-@click.option('--name', help='Name or description for the job')
-@click.option('--image', help='Docker image for the job')
-@click.option('--tag', help='Docker image tag to use for the job')
-@click.option('--schedule', help='Cron schedule for the job, in UNIX cron format', type=util.CRON)
-@click.option('--environment', '-e', help='Environment variable to set in form key=value', multiple=True)
+@click.option('--import', help='Import file for job', cls=util.SetImportFile, type=click.Path(exists=True),
+              expose_value=False)
+@click.option('--name', help='Name or description for the job', cls=util.CanBeImported)
+@click.option('--image', help='Docker image for the job',
+              cls=util.can_be_imported(name='image', fn=lambda x: x.split(':')[0]))
+@click.option('--tag', help='Docker image tag to use for the job',
+              cls=util.can_be_imported(name='image', fn=lambda x: x.split(':')[1]))
+@click.option('--schedule', help='Cron schedule for the job, in UNIX cron format', type=util.CRON,
+              cls=util.CanBeImported)
+@click.option('--environment', '-e', help='Environment variable to set in form key=value', multiple=True,
+              cls=util.CanBeImported)
 @click.option('--env-file', help='env file with environment variables to set', type=click.File('r'))
-@click.option('--entrypoint', help='Entrypoint for the docker command')
-@click.option('--alias', help='Alias for the job', type=util.ALIAS)
+@click.option('--entrypoint', help='Entrypoint for the docker command',
+              cls=util.CanBeImported)
+@click.option('--alias', help='Alias for the job', type=util.ALIAS, cls=util.CanBeImported)
 @pass_server
 def edit(server: Kronbute, job_id: Union[int, str], name: str, image: str, tag: str, schedule: str,
          environment: Tuple[str], env_file: Optional[TextIO], entrypoint: Optional[str], alias: Optional[str]):
@@ -117,3 +135,24 @@ def delete(server: Kronbute, job_id: Union[int, str]):
         server.delete_job(job_id)
         message = click.style(f'{job_id}', fg='white', bold=True)
         click.echo(util.success(f"Job {message} was deleted."))
+
+
+@job.command(help="Export a job as a YAML file")
+@click.argument('job_id', type=util.INT_ALIAS, required=True)
+@pass_server
+def export(server: Kronbute, job_id: Union[str, int]):
+    current_job = server.get_job(job_id)
+    data = {
+        'name': current_job['name'],
+        'image': f"{current_job['image']}:{current_job['tag']}",
+        'schedule': current_job['cron'],
+    }
+    if 'alias' in current_job:
+        data['alias'] = current_job['alias']
+    if 'entryPoint' in current_job and current_job['entryPoint']:
+        data['entrypoint'] = current_job['entryPoint']
+
+    if 'environment' in current_job:
+        data['environment'] = current_job['environment']
+
+    click.echo(yaml.dump(data, default_flow_style=False))
