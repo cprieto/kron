@@ -106,3 +106,19 @@ The relevance order is _command line > yaml file_, it means, if you declare the 
 
 **IMPORTANT** Currently there is a bug with the way we specify YAML and environment variables all together [see](https://www.pivotaltracker.com/story/show/160248865), so if you provide YAML and the environment variable parameter at the same time it will use _only_ the parameters from the command line.
 
+## Export one job
+
+Now we have the `export` verb for the `job` noun, we can export to standard output the details of a job so we can recreate that job, for example:
+
+```
+kron job export 1
+```
+
+Will export the data for the job 1 to the standard output, to save it into a file you can redirect the output to a file:
+
+```
+kron job export 1 > some_file.yml
+```
+
+You can use the alias name for the job or the id, it won't matter.
+
