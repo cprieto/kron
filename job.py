@@ -84,7 +84,7 @@ def parse_env(values: Union[Tuple[str],Dict[str, str]], env_file: Optional[TextI
               cls=util.can_be_imported(name='image', fn=lambda x: x.split(':')[1]))
 @click.option('--schedule', help='Cron schedule for the job, in UNIX cron format', required=True, type=util.CRON,
               cls=util.CanBeImported)
-@click.option('--entrypoint', help='Entrypoint for the docker command', required=False, type=util.CanBeImported)
+@click.option('--entrypoint', help='Entrypoint for the docker command', required=False, cls=util.CanBeImported)
 @click.option('--environment', '-e', help='Environment variable to set in form key=value', multiple=True,
               cls=util.CanBeImported)
 @click.option('--env-file', help='env file with environment variables to set', type=click.File('r'))
