@@ -2,13 +2,13 @@ import click
 from pyfiglet import Figlet
 from terminaltables import SingleTable
 
-from kronbute import Kronbute, pass_server
+from ..kronbute import Kronbute
 
 __version__ = "1.4"
 
 
 @click.command(help='Show information about Kron and Kronbute')
-@pass_server
+@click.pass_obj
 def info(server: Kronbute):
     name = Figlet(font='slant')
     click.echo(click.style(name.renderText('Kron'), fg='white', bold=True))

@@ -1,8 +1,8 @@
 import click
 from terminaltables import AsciiTable
 
-from kron import util
-from kron.kronbute import Kronbute
+from .. import util
+from ..kronbute import Kronbute
 
 
 @click.group(help='Group for all the commands related to job runs')

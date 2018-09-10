@@ -4,8 +4,8 @@ import yaml
 import click
 from terminaltables import AsciiTable, SingleTable
 
-from kron.kronbute import Kronbute
-from kron import util
+from .. import util
+from ..kronbute import Kronbute
 
 
 @click.group(help='Group for all the commands related to jobs')
