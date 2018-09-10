@@ -1,19 +1,17 @@
 import click
 from terminaltables import AsciiTable
 
-import util
-from kronbute import Kronbute, pass_server, ServerError
+from kron import util
+from kron.kronbute import Kronbute
 
 
 @click.group(help='Group for all the commands related to job runs')
-@pass_server
 def runs(server: Kronbute):
     pass
 
 
 @runs.command('list', help='List all the jobs in the server')
-@pass_server
-def list_(server: Kronbute):
+def list_runs(server: Kronbute):
     job_runs = server.list_runs()
     data = [['Id', 'Job id', 'Job name', 'Last Status', 'Updated on']]
     for job_run in job_runs:

@@ -2,7 +2,7 @@ import re
 import sys
 import yaml
 import click
-from typing import Optional, Any, Union, Callable
+from typing import Optional, Any, Union, Callable, Tuple, TextIO, Dict
 
 import requests
 
@@ -184,3 +184,18 @@ def can_be_imported(name: Optional[str] = None, fn: Optional[Callable[[Any], Any
                 return super().get_default(ctx)
 
     return CanBeImportedWith
+
+def parse_env(values: Union[Tuple[str],Dict[str, str]], env_file: Optional[TextIO]) -> Dict[str, str]:
+    if isinstance(values, dict):
+        return values
+
+    entries = (env_file.readlines() if env_file else []) + list(values)
+
+    res = {}
+    for entry in entries:
+        if '=' in entry:
+            key, value = entry.split('=', 1)
+            res[key] = value.strip('\n')
+        else:
+            res[entry.strip('\n')] = None
+    return res

@@ -1,9 +1,10 @@
 import click
-from util import KronbuteExceptionHandler
-from kronbute import Kronbute
-from job import job as job_commands
-from info import info as info_command
-from runs import runs as runs_command
+
+from .util import KronbuteExceptionHandler
+from .kronbute import Kronbute
+from .job import job_group
+from .info import info as info_command
+from .runs import runs_group
 
 
 @click.group(cls=KronbuteExceptionHandler)
@@ -14,9 +15,9 @@ def cli(ctx, server: str):
     ctx.obj = server
 
 
-cli.add_command(job_commands)
+cli.add_command(job_group)
 cli.add_command(info_command)
-cli.add_command(runs_command)
+cli.add_command(runs_group)
 
 if __name__ == '__main__':
     cli()

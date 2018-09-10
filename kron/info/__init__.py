@@ -6,6 +6,7 @@ from kronbute import Kronbute, pass_server
 
 __version__ = "1.4"
 
+
 @click.command(help='Show information about Kron and Kronbute')
 @pass_server
 def info(server: Kronbute):

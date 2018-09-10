@@ -2,34 +2,11 @@ import re
 import urllib.parse
 from typing import Optional, Dict, List, Union
 
-import click
 import requests
 
-regex = re.compile(r"hello!, version: (?P<version>.*)")
+from .errors import ServerError, ArgumentValidationError, NotFoundError, AliasAlreadyExistsError
 
-
-class ServerError(Exception):
-    def __init__(self, message: str, code: Optional[int], body: str):
-        super().__init__(message)
-        self.code = code
-        self.body = body
-
-
-class NotFoundError(Exception):
-    def __init__(self, query: Union[str, int], entity: str = 'job'):
-        self.query = query
-        self.entity = entity
-
-
-class ArgumentValidationError(Exception):
-    def __init__(self, message: str):
-        super().__init__(message)
-        self.message = message
-
-
-class AliasAlreadyExistsError(Exception):
-    def __init__(self, alias: Optional[str] = None):
-        self.alias = alias
+version_regex = re.compile(r"hello!, version: (?P<version>.*)")
 
 
 class Kronbute:
@@ -42,7 +19,7 @@ class Kronbute:
         if res.status_code != 200:
             raise ServerError(f'Server returned an invalid version or answer', res.status_code, res.text)
 
-        match = regex.match(res.text)
+        match = version_regex.match(res.text)
         version = match.group('version')
 
         return version
@@ -79,7 +56,7 @@ class Kronbute:
 
         return data
 
-    def get_job(self, job_id: Union[int, str]) -> Dict[str, str]:
+    def get_job(self, job_id: Union[int, str]) -> Dict[str, Union[str, Dict[str, str]]]:
         res = requests.get(urllib.parse.urljoin(self.url, f'api/jobs/{job_id}'))
         if res.status_code == 404:
             raise NotFoundError(job_id)
@@ -140,6 +117,3 @@ class Kronbute:
         data = res.json()
 
         return data
-
-
-pass_server = click.make_pass_decorator(Kronbute)
