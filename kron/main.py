@@ -5,6 +5,7 @@ from .kronbute import BaseServer
 from .job import job_group
 from .info import info as info_command
 from .runs import runs_group
+from .groups import groups as groups_group
 
 
 @click.group(cls=KronbuteExceptionHandler)
@@ -18,6 +19,7 @@ def cli(ctx, server: str):
 cli.add_command(job_group)
 cli.add_command(info_command)
 cli.add_command(runs_group)
+cli.add_command(groups_group)
 
 if __name__ == '__main__':
     cli()
