@@ -6,7 +6,7 @@ from typing import Optional, Any, Union, Callable, Tuple, TextIO, Dict
 
 import requests
 
-from kronbute import ServerError, NotFoundError, ArgumentValidationError, AliasAlreadyExistsError
+from .kronbute import ServerError, NotFoundError, ArgumentValidationError, AliasAlreadyExistsError
 
 
 def success(text: str) -> str:
