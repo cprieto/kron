@@ -38,11 +38,24 @@ The available verbs for the area `job` are:
   - `--image`, the docker image to run the job
   - `--tag`, the docker image tag to run the job
   - `--schedule`, this is the cron schedule to run the job
+  - `--entrypoint`, the image entry point to execute, _optional_
+  - `--alias`, an alias name to know the job, it must be _unique_, _optional_
   - `--environment` or `-e`, this is _optional_, the list of environment variables to set the job to run, pass it in the form `key=value`, for example `-e key=value1 -e key2=value2`
   - `--env-file`, _optional_, environment file, each line contains a line in the form `key=value` with the environment variables to pass to the process, use when you have repetitive environment variables between jobs.
 
 - `edit`, edit a job, you _need to pass_ the job id (`--id`) and it will request the same arguments as `create` (if not passed as command line arguments)
 - `delete`, removes a job, you need to pass the job id with `--id`, for example, `kron job delete --id 5` will remove job with id 5, it will ask you _yes/no_ before delete, pass `--yes` if you are sure you want to delete the job without any confirmation.
+
+The available verbs for the area `groups` are:
+
+- `list`, list all existing environment groups
+- `view [groupid]`, view an environment group details
+- `create`, create an environment group
+    - `--name`, unique name for the environent group, case sensitive
+    - `--environment` or `-e`, the list of environment variables to set, _optional_
+    - `--env-file`, environment file to load environment variables
+- `edit [groupid]`, edit an existing environment group, same parameters as `create`
+- `delete [groupid]`, delete an existing evironment group
 
 ## How do I install Kron?
 
@@ -85,6 +98,7 @@ alias: sample_job
 image: hc/data-integration-job:latest
 schedule: '*/5 * * * *'
 entrypoint: python3 main.py
+
 environment:
   VARIABLE1: VALUE1
   VARIABLE2:
