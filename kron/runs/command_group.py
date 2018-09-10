@@ -6,13 +6,13 @@ from ..kronbute import BaseServer, RunsServer
 
 
 @click.group(help='Group for all the commands related to job runs')
-@click.pass_obj
 @click.pass_context
-def runs(ctx, server: BaseServer):
-    ctx.obj = RunsServer(server)
+def runs(ctx):
+    ctx.obj = RunsServer(ctx.obj)
 
 
 @runs.command('list', help='List all the jobs in the server')
+@click.pass_obj
 def list_runs(server: RunsServer):
     job_runs = server.list()
     data = [['Id', 'Job id', 'Job name', 'Last Status', 'Updated on']]

@@ -9,10 +9,9 @@ from ..kronbute import JobServer, BaseServer
 
 
 @click.group(help='Group for all the commands related to jobs')
-@click.pass_obj
 @click.pass_context
-def job(ctx, server: BaseServer):
-    ctx.obj = JobServer(server)
+def job(ctx):
+    ctx.obj = JobServer(ctx.obj)
 
 
 @job.command(help='Create a job in the server')
