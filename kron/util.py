@@ -128,8 +128,8 @@ class KronbuteExceptionHandler(click.Group):
             click.secho("[ERROR] You should provide at least one parameter", err=True, fg='red')
             sys.exit(11)
 
-        except AliasAlreadyExistsError as alias:
-            click.secho(f"[ERROR] This alias is already taken: {alias.alias}", err=True, fg='red')
+        except AliasAlreadyExistsError:
+            click.secho(f"[ERROR] This alias/name is already taken", err=True, fg='red')
             sys.exit(12)
 
         except NotFoundError as not_found:

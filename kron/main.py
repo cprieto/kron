@@ -1,7 +1,7 @@
 import click
 
 from .util import KronbuteExceptionHandler
-from .kronbute import Kronbute
+from .kronbute import BaseServer
 from .job import job_group
 from .info import info as info_command
 from .runs import runs_group
@@ -11,7 +11,7 @@ from .runs import runs_group
 @click.option("--server", envvar="KRONBUTE_SERVER", default='http://localhost:8080', help='Kronbute server url')
 @click.pass_context
 def cli(ctx, server: str):
-    server = Kronbute(server)
+    server = BaseServer(server)
     ctx.obj = server
 
 

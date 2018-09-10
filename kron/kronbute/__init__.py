@@ -1,5 +1,6 @@
 from .errors import ServerError, AliasAlreadyExistsError, NotFoundError, ArgumentValidationError
-from .server import Kronbute
+from .server import BaseServer, JobServer
 
 
-__all__ = ['Kronbute', 'ServerError', 'NotFoundError', 'AliasAlreadyExistsError', 'ArgumentValidationError']
+__all__ = ['BaseServer', 'JobServer',
+           'ServerError', 'NotFoundError', 'AliasAlreadyExistsError', 'ArgumentValidationError']

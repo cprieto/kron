@@ -5,13 +5,14 @@ import click
 from terminaltables import AsciiTable, SingleTable
 
 from .. import util
-from ..kronbute import Kronbute
+from ..kronbute import JobServer, BaseServer
 
 
 @click.group(help='Group for all the commands related to jobs')
 @click.pass_obj
-def job(server: Kronbute):
-    pass
+@click.pass_context
+def job(ctx, server: BaseServer):
+    ctx.obj = JobServer(server)
 
 
 @job.command(help='Create a job in the server')
@@ -30,10 +31,10 @@ def job(server: Kronbute):
 @click.option('--env-file', help='env file with environment variables to set', type=click.File('r'))
 @click.option('--alias', help='Optional alias for the job', type=util.ALIAS, cls=util.CanBeImported)
 @click.pass_obj
-def create(server: Kronbute, name: str, image: str, tag: str, schedule: str,
+def create(server: JobServer, name: str, image: str, tag: str, schedule: str,
            environment: Union[Tuple[str], Dict[str, str]], env_file: TextIO,
            entrypoint: str, alias: Optional[str] = None):
-    job_id = server.create_job(name, image, tag, schedule, util.parse_env(environment, env_file), entrypoint, alias)
+    job_id = server.create(name, image, tag, schedule, util.parse_env(environment, env_file), entrypoint, alias)
     message = click.style(f'{job_id}', fg='white', bold=True)
     click.echo(util.success(f"Job created, id is {message}."))
 
@@ -41,9 +42,9 @@ def create(server: Kronbute, name: str, image: str, tag: str, schedule: str,
 @job.command(help='Delete a job in the server, this operation has no undo.')
 @click.argument('job_id', type=util.INT_ALIAS, required=True)
 @click.pass_obj
-def delete(server: Kronbute, job_id: Union[int, str]):
+def delete(server: JobServer, job_id: Union[int, str]):
     if click.confirm(f"Do you really want to delete job {job_id}?"):
-        server.delete_job(job_id)
+        server.delete(job_id)
         message = click.style(f'{job_id}', fg='white', bold=True)
         click.echo(util.success(f"Job {message} was deleted."))
 
@@ -66,13 +67,13 @@ def delete(server: Kronbute, job_id: Union[int, str]):
               cls=util.CanBeImported)
 @click.option('--alias', help='Alias for the job', type=util.ALIAS, cls=util.CanBeImported)
 @click.pass_obj
-def edit(server: Kronbute, job_id: Union[int, str], name: str, image: str, tag: str, schedule: str,
+def edit(server: JobServer, job_id: Union[int, str], name: str, image: str, tag: str, schedule: str,
          environment: Tuple[str], env_file: Optional[TextIO], entrypoint: Optional[str], alias: Optional[str]):
 
     if not util.at_least_one(name, image, tag, schedule, environment, env_file, entrypoint, alias):
         raise util.AtLeastOneParameterError()
 
-    server.edit_job(job_id, name, image, tag, schedule, alias, util.parse_env(environment, env_file), entrypoint)
+    server.edit(job_id, name, image, tag, schedule, alias, util.parse_env(environment, env_file), entrypoint)
     message = click.style(f'{job_id}', fg='white', bold=True)
     click.echo(util.success(f"Job with id {message} edited."))
 
@@ -80,8 +81,8 @@ def edit(server: Kronbute, job_id: Union[int, str], name: str, image: str, tag: 
 @job.command(help="Export a job as a YAML file")
 @click.argument('job_id', type=util.INT_ALIAS, required=True)
 @click.pass_obj
-def export(server: Kronbute, job_id: Union[str, int]):
-    current_job = server.get_job(job_id)
+def export(server: JobServer, job_id: Union[str, int]):
+    current_job = server.view(job_id)
     data = {
         'name': current_job['name'],
         'image': f"{current_job['image']}:{current_job['tag']}",
@@ -100,13 +101,13 @@ def export(server: Kronbute, job_id: Union[str, int]):
 
 @job.command('list', help='List all the jobs in the server')
 @click.pass_obj
-def list_jobs(server: Kronbute):
-    jobs = server.list_jobs()
-    data = [['Id', 'Alias', 'Name/Description', 'Schedule', 'Cron entry', 'Last Status', 'Status on', 'Next run']]
+def list_jobs(server: JobServer):
+    jobs = server.list()
+    data = [['Id', 'Alias', 'Name/Description', 'Schedule', 'Last Status', 'Next run']]
     for job in jobs:
         data.append(
             [job['id'], util.format_none(job['alias'] if 'alias' in job else ''), job['name'], job['schedule'],
-             job['cron'], util.format_status(job['lastStatus']), job['statusUpdateOn'], job['nextRun']])
+             util.format_status(job['lastStatus']), job['nextRun']])
 
     table = AsciiTable(data)
     click.echo(table.table)
@@ -115,8 +116,8 @@ def list_jobs(server: Kronbute):
 @job.command(help='View information about a job with given id')
 @click.argument('job_id', type=util.INT_ALIAS, required=True)
 @click.pass_obj
-def view(server: Kronbute, job_id: Union[int, str]):
-    current_job = server.get_job(job_id)
+def view(server: JobServer, job_id: Union[int, str]):
+    current_job = server.view(job_id)
 
     data = [
         ['Id', current_job['id']],
