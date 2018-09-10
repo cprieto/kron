@@ -236,3 +236,11 @@ class JobServer:
 
     def delete(self, job_id: Union[str, int]):
         self.server.delete('api/jobs', job_id)
+
+
+class RunsServer:
+    def __init__(self, server: BaseServer):
+        self.server = server
+
+    def list(self):
+        return self.server.list('api/runs')
