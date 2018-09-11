@@ -37,6 +37,7 @@ The available verbs for the area `job` are:
   - `--name`, the name of the job
   - `--image`, the docker image to run the job
   - `--tag`, the docker image tag to run the job
+  - `--group` or `-g`, this is _optional_, the list of environment groups to use with this job
   - `--schedule`, this is the cron schedule to run the job
   - `--entrypoint`, the image entry point to execute, _optional_
   - `--alias`, an alias name to know the job, it must be _unique_, _optional_
@@ -97,6 +98,9 @@ name: Sample job
 alias: sample_job
 image: hc/data-integration-job:latest
 schedule: '*/5 * * * *'
+groups:
+  - sample_group_1
+  - sample_group_2
 entrypoint: python3 main.py
 
 environment:
