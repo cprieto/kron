@@ -61,8 +61,6 @@ class BaseServer:
         return data
 
     def edit(self, endpoint: str, entity_id: Union[int, str], data: Dict[Any, Optional[Any]]):
-        import jsonpickle
-        print(jsonpickle.dumps(data))
         res = requests.put(urllib.parse.urljoin(self.url, f'{endpoint}/{entity_id}'), json=data)
         if res.status_code == 400:
             raise ArgumentValidationError(res.text)

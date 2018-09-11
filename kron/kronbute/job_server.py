@@ -15,10 +15,8 @@ class JobServer:
     def create(self, name: str, image: str, tag: str, schedule: str, env: Dict[str, str], entrypoint: str,
                alias: Optional[str], groups: Tuple[str]) -> Optional[int]:
 
-        data = {'name': name, 'image': image, 'tag': tag, 'schedule': schedule, 'entryPoint': entrypoint}
-
-        if len(env) > 0:
-            data['environment'] = [{'key': key, 'value': value or ''} for key, value in env.items()]
+        data = {'name': name, 'image': image, 'tag': tag, 'schedule': schedule, 'entryPoint': entrypoint,
+                'environment': env}
 
         if alias:
             data['alias'] = alias
@@ -42,7 +40,7 @@ class JobServer:
                 'alias': alias or current_job['alias'],
                 'entryPoint': entrypoint or current_job['entryPoint'],
                 'groups': list(groups) or current_job['groups'],
-                'environment': current_job['environment']
+                'environment': env or current_job['environment']
                 }
 
         self.server.edit('api/jobs', job_id, data)
