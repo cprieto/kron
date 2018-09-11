@@ -50,6 +50,9 @@ class BaseServer:
         if res.status_code == 409:
             raise AliasAlreadyExistsError()
 
+        if res.status_code == 404:
+            raise NotFoundError("")
+
         if res.status_code != 201:
             raise ServerError(f'Error when creating entity', res.status_code, res.text)
 
@@ -58,6 +61,8 @@ class BaseServer:
         return data
 
     def edit(self, endpoint: str, entity_id: Union[int, str], data: Dict[Any, Optional[Any]]):
+        import jsonpickle
+        print(jsonpickle.dumps(data))
         res = requests.put(urllib.parse.urljoin(self.url, f'{endpoint}/{entity_id}'), json=data)
         if res.status_code == 400:
             raise ArgumentValidationError(res.text)

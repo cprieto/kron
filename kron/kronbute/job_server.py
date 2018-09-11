@@ -1,5 +1,5 @@
 from .base_server import BaseServer
-from typing import Optional, Dict, List, Union, Any
+from typing import Optional, Dict, List, Union, Any, Tuple
 
 
 class JobServer:
@@ -13,40 +13,37 @@ class JobServer:
         return self.server.get('api/jobs', job_id)
 
     def create(self, name: str, image: str, tag: str, schedule: str, env: Dict[str, str], entrypoint: str,
-                   alias: Optional[str]) -> Optional[int]:
+               alias: Optional[str], groups: Tuple[str]) -> Optional[int]:
+
         data = {'name': name, 'image': image, 'tag': tag, 'schedule': schedule, 'entryPoint': entrypoint}
+
         if len(env) > 0:
             data['environment'] = [{'key': key, 'value': value or ''} for key, value in env.items()]
 
         if alias:
             data['alias'] = alias
 
+        data['groups'] = groups
+
         created_job = self.server.create('api/jobs', data)
 
         return created_job
 
     def edit(self, job_id: Union[int, str], name: Optional[str], image: Optional[str], tag: Optional[str],
-                 schedule: Optional[str], alias: Optional[str], env: Optional[Dict[str, str]],
-                 entrypoint: Optional[str]):
+             schedule: Optional[str], alias: Optional[str], env: Optional[Dict[str, str]],
+             entrypoint: Optional[str], groups: Tuple[str]):
 
         current_job = self.server.get('api/jobs', job_id)
 
-        data = {
-            'name': name or current_job['name'],
-            'image': image or current_job['image'],
-            'tag': tag or current_job['tag'],
-            'schedule': schedule or current_job['cron'],
-            'alias': alias or current_job['alias'],
-            'entryPoint': entrypoint or current_job['entryPoint']
-        }
-
-        if 'entryPoint' in current_job:
-            data['environment'] = [{'key': key, 'value': value or ''}
-                                   for key, value in current_job['environment'].items()]
-
-        if env:
-            data['environment'] = [{'key': key, 'value': value or ''}
-                                   for key, value in env.items()]
+        data = {'name': name or current_job['name'],
+                'image': image or current_job['image'],
+                'tag': tag or current_job['tag'],
+                'schedule': schedule or current_job['cron'],
+                'alias': alias or current_job['alias'],
+                'entryPoint': entrypoint or current_job['entryPoint'],
+                'groups': list(groups) or current_job['groups'],
+                'environment': current_job['environment']
+                }
 
         self.server.edit('api/jobs', job_id, data)
 

@@ -25,4 +25,7 @@ def export(server: JobServer, job_id: Union[str, int]):
     if 'environment' in current_job:
         data['environment'] = current_job['environment']
 
+    if 'groups' in current_job:
+        data['groups'] = current_job['groups']
+
     click.echo(yaml.dump(data, default_flow_style=False))

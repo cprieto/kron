@@ -1,4 +1,4 @@
-from typing import Union, Tuple, Dict, TextIO, Optional
+from typing import Union, Tuple, Dict, TextIO, Optional, List
 
 import click
 from .. import util
@@ -18,12 +18,13 @@ from ..kronbute import JobServer
 @click.option('--entrypoint', help='Entrypoint for the docker command', required=False, cls=util.CanBeImported)
 @click.option('--environment', '-e', help='Environment variable to set in form key=value', multiple=True,
               cls=util.CanBeImported)
+@click.option('--group', '-g', help='Environment group for the job', type=str, cls=util.CanBeImported, multiple=True)
 @click.option('--env-file', help='env file with environment variables to set', type=click.File('r'))
 @click.option('--alias', help='Optional alias for the job', type=util.ALIAS, cls=util.CanBeImported)
 @click.pass_obj
 def create(server: JobServer, name: str, image: str, tag: str, schedule: str,
-           environment: Union[Tuple[str], Dict[str, str]], env_file: TextIO,
+           environment: Union[Tuple[str], Dict[str, str]], group: Tuple[str], env_file: TextIO,
            entrypoint: str, alias: Optional[str] = None):
-    job_id = server.create(name, image, tag, schedule, util.parse_env(environment, env_file), entrypoint, alias)
+    job_id = server.create(name, image, tag, schedule, util.parse_env(environment, env_file), entrypoint, alias, group)
     message = click.style(f'{job_id}', fg='white', bold=True)
     click.echo(util.success(f"Job created, id is {message}."))
