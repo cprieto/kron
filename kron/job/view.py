@@ -22,7 +22,8 @@ def view(server: JobServer, job_id: Union[int, str]):
             ['Updated on', current_job['statusUpdateOn']], ['Next run on', current_job['nextRun']]]
 
     if 'environment' in current_job and len(current_job['environment']) > 0:
-        e = SingleTable([[key, value] for key, value in current_job['environment'].items()])
+        e = SingleTable([[key, value[:9] + ' ...' if len(value) > 14 else value]
+                         for key, value in current_job['environment'].items()])
         e.inner_heading_row_border = False
         e.outer_border = False
         e.inner_column_border = False
