@@ -20,7 +20,8 @@ from ..kronbute import JobServer
 @click.option('--entrypoint', help='Entrypoint for the docker command', required=False, cls=util.CanBeImported)
 @click.option('--environment', '-e', help='Environment variable to set in form key=value', multiple=True,
               cls=util.CanBeImported)
-@click.option('--group', '-g', help='Environment group for the job', type=str, cls=util.CanBeImported, multiple=True)
+@click.option('--group', '-g', help='Environment group for the job', type=str,
+              multiple=True, cls=util.can_be_imported('groups'))
 @click.option('--env-file', help='env file with environment variables to set', type=click.File('r'))
 @click.option('--alias', help='Optional alias for the job', type=util.ALIAS, cls=util.CanBeImported)
 @click.pass_obj
