@@ -170,7 +170,7 @@ class CanBeImported(click.Option):
     def get_default(self, ctx):
         try:
             return ctx.file_defaults[str(self.name)]
-        except AttributeError:
+        except (AttributeError, KeyError):
             return super().get_default(ctx)
 
 
@@ -180,10 +180,11 @@ def can_be_imported(name: Optional[str] = None, fn: Optional[Callable[[Any], Any
             try:
                 value = ctx.file_defaults[name if name else str(self.name)]
                 return fn(value) if fn else value
-            except (AttributeError, IndexError):
+            except (AttributeError, IndexError, KeyError):
                 return super().get_default(ctx)
 
     return CanBeImportedWith
+
 
 def parse_env(values: Union[Tuple[str],Dict[str, str]], env_file: Optional[TextIO]) -> Dict[str, str]:
     if isinstance(values, dict):
