@@ -21,7 +21,6 @@ class JobServer:
         if alias:
             data['alias'] = alias
 
-        print(groups)
         data['groups'] = groups
 
         created_job = self.server.create('api/jobs', data)

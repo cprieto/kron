@@ -10,9 +10,9 @@ from ..kronbute import JobServer
 @click.option('--import', help='Import file for job', cls=util.SetImportFile, type=click.Path(exists=True),
               expose_value=False)
 @click.option('--name', help='Name or description for the job', cls=util.CanBeImported)
-@click.option('--image', help='Docker image for the job',
+@click.option('--image', help='Docker image for the job', type=util.DOCKER_IMAGE,
               cls=util.can_be_imported(name='image', fn=lambda x: x.split(':')[0]))
-@click.option('--tag', help='Docker image tag to use for the job',
+@click.option('--tag', help='Docker image tag to use for the job', type=util.DOCKER_TAG,
               cls=util.can_be_imported(name='image', fn=lambda x: x.split(':')[1]))
 @click.option('--schedule', help='Cron schedule for the job, in UNIX cron format', type=util.CRON,
               cls=util.CanBeImported)

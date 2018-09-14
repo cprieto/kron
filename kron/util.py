@@ -65,6 +65,8 @@ class CronParamType(click.ParamType):
 CRON = CronParamType()
 
 alias_regex = re.compile(r'^[A-Za-z][A-Za-z\d_]*$')
+image_regex = re.compile(r"^[\w][\w\-.]+/?[\w][\w\-.]+$")
+tag_regex = re.compile(r"")
 
 
 class AliasParamType(click.ParamType):
@@ -108,11 +110,35 @@ class TimeZoneNameParamType(click.ParamType):
 
     def convert(self, value, param, ctx) -> str:
         if value not in pytz.all_timezones:
-            self.fail(f"TimeZone {value} does not exist", param)
+            self.fail(f"TimeZone does not exist", param, ctx=ctx)
         return value
 
 
 TIMEZONE = TimeZoneNameParamType()
+
+
+class DockerImageName(click.ParamType):
+    name = 'DockerImageName'
+
+    def convert(self, value, param, ctx) -> str:
+        if not image_regex.match(value):
+            self.fail(f"Invalid docker image name", ctx=ctx)
+        return value
+
+
+DOCKER_IMAGE = DockerImageName()
+
+
+class DockerTagName(click.ParamType):
+    name = 'DockerTagName'
+
+    def convert(self, value, param, ctx):
+        if not tag_regex.match(value):
+            self.fail("Invalid docker tag name", ctx=ctx)
+        return value
+
+
+DOCKER_TAG = DockerTagName()
 
 
 def format_status(status: str) -> str:
