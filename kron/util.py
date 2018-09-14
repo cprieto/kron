@@ -5,6 +5,7 @@ import click
 from typing import Optional, Any, Union, Callable, Tuple, TextIO, Dict
 
 import requests
+import pytz
 
 from .kronbute import ServerError, NotFoundError, ArgumentValidationError, AliasAlreadyExistsError
 
@@ -100,6 +101,18 @@ class IntOrAliasParamType(click.ParamType):
 
 
 INT_ALIAS = IntOrAliasParamType()
+
+
+class TimeZoneNameParamType(click.ParamType):
+    name = 'TimeZoneName'
+
+    def convert(self, value, param, ctx) -> str:
+        if value not in pytz.all_timezones:
+            self.fail(f"TimeZone {value} does not exist", param)
+        return value
+
+
+TIMEZONE = TimeZoneNameParamType()
 
 
 def format_status(status: str) -> str:

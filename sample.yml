@@ -2,6 +2,7 @@ name: Sample job
 alias: another_Sample
 image: hc/data-integration-job
 schedule: '*/5 * * * *'
+timezone: UTC
 
 groups:
   - sample_group_1

@@ -13,10 +13,10 @@ class JobServer:
         return self.server.get('api/jobs', job_id)
 
     def create(self, name: str, image: str, tag: str, schedule: str, env: Dict[str, str], entrypoint: str,
-               alias: Optional[str], groups: Tuple[str]) -> Optional[int]:
+               alias: Optional[str], groups: Tuple[str], timezone: str) -> Optional[int]:
 
         data = {'name': name, 'image': image, 'tag': tag, 'schedule': schedule, 'entryPoint': entrypoint,
-                'environment': env}
+                'environment': env, 'timeZone': timezone}
 
         if alias:
             data['alias'] = alias
@@ -29,7 +29,7 @@ class JobServer:
 
     def edit(self, job_id: Union[int, str], name: Optional[str], image: Optional[str], tag: Optional[str],
              schedule: Optional[str], alias: Optional[str], env: Optional[Dict[str, str]],
-             entrypoint: Optional[str], groups: Tuple[str]):
+             entrypoint: Optional[str], groups: Tuple[str], timezone: str):
 
         current_job = self.server.get('api/jobs', job_id)
 
@@ -40,6 +40,7 @@ class JobServer:
                 'alias': alias or current_job['alias'],
                 'entryPoint': entrypoint or current_job['entryPoint'],
                 'groups': list(groups) or current_job['groups'],
+                'timeZone': timezone or current_job['timeZone'],
                 'environment': env or current_job['environment']
                 }
 

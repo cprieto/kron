@@ -6,7 +6,7 @@ with open(path.join(here, 'README.md')) as f:
     long_description = f.read()
 
 setup(name='kron',
-      version='1.7',
+      version='1.8',
       description='Kron, the command line companion for Kronbute',
       long_description=long_description,
       long_description_content_type='text/markdown',
@@ -22,7 +22,8 @@ setup(name='kron',
           'coloredlogs',
           'terminaltables',
           'pyfiglet',
-          'pyyaml'
+          'pyyaml',
+          'pytz'
       ],
       package_data={},
       entry_points={

@@ -16,6 +16,7 @@ def export(server: JobServer, job_id: Union[str, int]):
         'name': current_job['name'],
         'image': f"{current_job['image']}:{current_job['tag']}",
         'schedule': current_job['cron'],
+        'timezone': current_job['timeZone']
     }
     if 'alias' in current_job:
         data['alias'] = current_job['alias']

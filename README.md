@@ -35,6 +35,7 @@ The available verbs for the area `job` are:
 - `create`, create a new job, it will ask for the following options if not provided:
 
   - `--name`, the name of the job
+  - `--timezone`, _optional_, the timezone name to run the job on, by default is UTC, timezones looks like "America/New_York"
   - `--image`, the docker image to run the job
   - `--tag`, the docker image tag to run the job
   - `--group` or `-g`, this is _optional_, the list of environment groups to use with this job
@@ -98,6 +99,7 @@ name: Sample job
 alias: sample_job
 image: hc/data-integration-job:latest
 schedule: '*/5 * * * *'
+timezone: UTC
 groups:
   - sample_group_1
   - sample_group_2
