@@ -9,11 +9,11 @@ from ..kronbute import JobServer
 @click.pass_obj
 def list_jobs(server: JobServer):
     jobs = server.list()
-    data = [['Id', 'Alias', 'Name/Description', 'Schedule', 'Last Status', 'Next run']]
+    data = [['Id', 'Alias', 'Name/Description', 'Schedule', 'Last Status', 'Last run', 'Next run']]
     for job in jobs:
         data.append(
             [job['id'], util.format_none(job['alias'] if 'alias' in job else ''), job['name'], job['schedule'],
-             util.format_status(job['lastStatus']), job['nextRun']])
+             util.format_status(job['lastStatus']), job['statusUpdateOn'], job['nextRun']])
 
     table = AsciiTable(data)
     click.echo(table.table)
