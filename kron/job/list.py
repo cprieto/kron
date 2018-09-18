@@ -12,7 +12,7 @@ def list_jobs(server: JobServer):
     data = [['Id', 'Alias', 'Name/Description', 'Schedule', 'Last Status', 'Last run', 'Next run']]
     for job in jobs:
         data.append(
-            [job['id'], util.format_none(job['alias'] if 'alias' in job else ''), job['name'], job['schedule'],
+            [job['id'], util.format_none(job['alias'] if 'alias' in job else ''), job['name'], job['scheduleText'],
              util.format_status(job['lastStatus']), job['statusUpdateOn'], job['nextRun']])
 
     table = AsciiTable(data)

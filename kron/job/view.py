@@ -15,9 +15,11 @@ def view(server: JobServer, job_id: Union[int, str]):
 
     data = [['Id', current_job['id']], ['Name/Description', current_job['name']],
             ['Alias', util.format_none(current_job['alias'] if 'alias' in current_job else '')],
-            ['Image:tag', f'{current_job["image"]}:{current_job["tag"]}'], ['Schedule', current_job['schedule']],
+            ['Image:tag', f'{current_job["image"]}:{current_job["tag"]}'],
+            ['Schedule', current_job['scheduleText']],
             ['Time Zone', current_job['timeZone']],
-            ['Cron entry', current_job['cron']], ['EntryPoint', util.format_none(current_job['entryPoint'])],
+            ['Cron entry', current_job['schedule']],
+            ['EntryPoint', util.format_none(current_job['entryPoint'])],
             ['Groups', ','.join(current_job['groups'])],
             ['Created on', f"{current_job['createdOn']} (UTC)"],
             ['Last status', util.format_status(current_job['lastStatus'])],
