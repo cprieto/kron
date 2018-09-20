@@ -36,7 +36,7 @@ class JobServer:
         data = {'name': name or current_job['name'],
                 'image': image or current_job['image'],
                 'tag': tag or current_job['tag'],
-                'schedule': schedule or current_job['cron'],
+                'schedule': schedule or current_job['schedule'],
                 'alias': alias or current_job['alias'],
                 'entryPoint': entrypoint or current_job['entryPoint'],
                 'groups': list(groups) or current_job['groups'],
