@@ -13,7 +13,7 @@ def list_jobs(server: JobServer):
     for job in jobs:
         data.append(
             [job['id'], util.format_none(job['alias'] if 'alias' in job else ''), job['name'], job['scheduleText'],
-             util.format_status(job['lastStatus']), job['statusUpdateOn'], job['nextRun']])
+             util.format_status(job['lastStatus']), job['lastRun'], job['nextRun']])
 
     table = AsciiTable(data)
     click.echo(table.table)

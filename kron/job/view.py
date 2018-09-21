@@ -24,6 +24,7 @@ def view(server: JobServer, job_id: Union[int, str]):
             ['Created on', f"{current_job['createdOn']} (UTC)"],
             ['Last status', util.format_status(current_job['lastStatus'])],
             ['Updated on', f"{current_job['statusUpdateOn']} (UTC)"],
+            ['Last run on', f"{current_job['lastRun']} ({current_job['timeZone']})"],
             ['Next run on', f"{current_job['nextRun']} ({current_job['timeZone']})"]]
 
     if 'environment' in current_job and len(current_job['environment']) > 0:
