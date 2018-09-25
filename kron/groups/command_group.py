@@ -9,11 +9,11 @@ from ..kronbute import GroupsServer
 
 @click.group(help='Environment group commands')
 @click.pass_context
-def groups(ctx):
+def group(ctx):
     ctx.obj = GroupsServer(ctx.obj)
 
 
-@groups.command('list', help='List all environment groups')
+@group.command('list', help='List all environment groups')
 @click.pass_obj
 def list_groups(server: GroupsServer):
     data = [['Id', 'Name', 'Variables']]
@@ -24,7 +24,7 @@ def list_groups(server: GroupsServer):
     click.echo(table.table)
 
 
-@groups.command(help='Create a new environment group')
+@group.command(help='Create a new environment group')
 @click.option('--name', type=str, required=True, help='Name for the new environment group, it must be unique')
 @click.option('--environment', '-e', multiple=True, help='Environment variable in form key=value')
 @click.option('--env-file', help='env file with environment variables to set', type=click.File('r'))
@@ -35,7 +35,7 @@ def create(server: GroupsServer, name: str, environment: Union[Tuple[str], Dict[
     click.echo(util.success(f"Group {name} created, id is {message}."))
 
 
-@groups.command(help='View details of environment group')
+@group.command(help='View details of environment group')
 @click.argument('group_id', type=util.INT_ALIAS, required=True)
 @click.pass_obj
 def view(server: GroupsServer, group_id: Union[str, int]):
@@ -57,7 +57,7 @@ def view(server: GroupsServer, group_id: Union[str, int]):
     click.echo(table.table)
 
 
-@groups.command(help='Edit an existing environment group')
+@group.command(help='Edit an existing environment group')
 @click.argument('group_id', type=util.INT_ALIAS, required=True)
 @click.option('--name', type=str, help='Name for the environment group, it must not previously exist')
 @click.option('--environment', '-e', help='Environment variable in form key=value', multiple=True)
@@ -74,7 +74,7 @@ def edit(server: GroupsServer, group_id: Union[str, int], name: Optional[str],
     click.echo(util.success(f"Group with id {message} edited."))
 
 
-@groups.command(help='Delete an existing environment group')
+@group.command(help='Delete an existing environment group')
 @click.argument('group_id', type=util.INT_ALIAS, required=True)
 @click.pass_obj
 def delete(server: GroupsServer, group_id: Union[str, int]):

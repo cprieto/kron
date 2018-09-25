@@ -1,3 +1,3 @@
-from .command_group import groups
+from .command_group import group
 
-__all__ = ['groups']
+__all__ = ['group']

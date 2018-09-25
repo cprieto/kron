@@ -5,7 +5,7 @@ from .kronbute import BaseServer
 from .job import job_group
 from .info import info as info_command
 from .runs import runs_group
-from .groups import groups as groups_group
+from .groups import group as groups_group
 
 
 @click.group(cls=KronbuteExceptionHandler)

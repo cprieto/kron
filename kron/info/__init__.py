@@ -4,7 +4,7 @@ from terminaltables import SingleTable
 
 from ..kronbute import BaseServer
 
-__version__ = "1.9"
+__version__ = "1.10"
 
 
 @click.command(help='Show information about Kron and Kronbute')

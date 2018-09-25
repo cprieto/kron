@@ -1,5 +1,9 @@
-from .base_server import BaseServer
 from typing import Optional, Dict, List, Union, Any, Tuple
+
+import requests
+
+from kron.kronbute import NotFoundError
+from .base_server import BaseServer
 
 
 class JobServer:
@@ -48,3 +52,8 @@ class JobServer:
 
     def delete(self, job_id: Union[str, int]):
         self.server.delete('api/jobs', job_id)
+
+    def run_now(self, job_id: Union[str, int]):
+        response = requests.post(f'{self.server.url}/api/jobs/{job_id}/run')
+        if response.status_code == 404:
+            raise NotFoundError(job_id)

@@ -48,7 +48,7 @@ The available verbs for the area `job` are:
 - `edit`, edit a job, you _need to pass_ the job id (`--id`) and it will request the same arguments as `create` (if not passed as command line arguments)
 - `delete`, removes a job, you need to pass the job id with `--id`, for example, `kron job delete --id 5` will remove job with id 5, it will ask you _yes/no_ before delete, pass `--yes` if you are sure you want to delete the job without any confirmation.
 
-The available verbs for the area `groups` are:
+The available verbs for the area `group` are:
 
 - `list`, list all existing environment groups
 - `view [groupid]`, view an environment group details
