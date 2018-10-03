@@ -57,3 +57,10 @@ class JobServer:
         response = requests.post(f'{self.server.url}/api/jobs/{job_id}/run')
         if response.status_code == 404:
             raise NotFoundError(job_id)
+
+    def explain(self, job_id: Union[str, int]):
+        response = requests.get(f'{self.server.url}/api/jobs/{job_id}/explain')
+        if response.status_code == 404:
+            raise NotFoundError(job_id)
+        if response.status_code != 200:
+            raise Server
