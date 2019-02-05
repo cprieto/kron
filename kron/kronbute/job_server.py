@@ -3,6 +3,7 @@ from typing import Optional, Dict, List, Union, Any, Tuple
 import requests
 
 from kron.kronbute import NotFoundError
+from kron.kronbute.errors import JobAlreadyPausedError
 from .base_server import BaseServer
 
 
@@ -64,3 +65,11 @@ class JobServer:
             raise NotFoundError(job_id)
         if response.status_code != 200:
             raise Server
+
+    def pause(self, job_id):
+        response = requests.post(f'{self.server.url}/api/jobs/{job_id}/pause')
+        if response.status_code == 404:
+            raise NotFoundError(job_id)
+
+        if response.status_code == 409:
+            raise JobAlreadyPausedError(job_id)

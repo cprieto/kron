@@ -18,6 +18,7 @@ def view(server: JobServer, job_id: Union[int, str]):
             ['Image:tag', f'{current_job["image"]}:{current_job["tag"]}'],
             ['Schedule', current_job['scheduleText']],
             ['Time Zone', current_job['timeZone']],
+            ['Paused', current_job['paused']],
             ['Cron entry', current_job['schedule']],
             ['EntryPoint', util.format_none(current_job['entryPoint'])],
             ['Groups', ','.join(current_job['groups'])],
