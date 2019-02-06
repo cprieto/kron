@@ -9,6 +9,8 @@ from .list import list_jobs as list_command
 from .export import export as export_command
 from .delete import delete as delete_command
 from .run import run as run_command
+from .pause import pause as pause_command
+from .resume import resume as resume_command
 from .explain import explain as explain_command
 
 
@@ -25,4 +27,6 @@ job.add_command(list_command)
 job.add_command(export_command)
 job.add_command(delete_command)
 job.add_command(run_command)
+job.add_command(pause_command)
+job.add_command(resume_command)
 job.add_command(explain_command)
