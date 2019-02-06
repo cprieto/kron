@@ -18,6 +18,10 @@ class JobAlreadyPausedError(Exception):
         self.query = query
         self.entity = entity
 
+class JobIsNotPausedError(Exception):
+    def __init__(self, query: Union[str, int], entity: str = 'job'):
+        self.query = query
+        self.entity = entity
 
 class ArgumentValidationError(Exception):
     def __init__(self, message: str):

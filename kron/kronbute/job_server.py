@@ -3,7 +3,7 @@ from typing import Optional, Dict, List, Union, Any, Tuple
 import requests
 
 from kron.kronbute import NotFoundError
-from kron.kronbute.errors import JobAlreadyPausedError
+from kron.kronbute.errors import JobAlreadyPausedError, JobIsNotPausedError
 from .base_server import BaseServer
 
 
@@ -71,5 +71,13 @@ class JobServer:
         if response.status_code == 404:
             raise NotFoundError(job_id)
 
-        if response.status_code == 409:
-            raise JobAlreadyPausedError(job_id)
+        if response.status_code == 400:
+            raise JobAlreadyPausedError(response.content)
+
+    def resume(self, job_id):
+        response = requests.post(f'{self.server.url}/api/jobs/{job_id}/resume')
+        if response.status_code == 404:
+            raise NotFoundError(job_id)
+
+        if response.status_code == 400:
+            raise JobIsNotPausedError(response.content)
