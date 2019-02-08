@@ -1,6 +1,7 @@
 from typing import Union, Tuple, Dict, TextIO, Optional, List
 
 import click
+
 from .. import util
 from ..kronbute import JobServer
 
@@ -17,6 +18,8 @@ from ..kronbute import JobServer
               cls=util.CanBeImported)
 @click.option('--timezone', help='TimeZone to run the job, default is UTC', default='UTC', cls=util.CanBeImported,
               type=util.TIMEZONE)
+@click.option('--crontype', help='The crontype of the schedule for the job, default is UNIXCRON', default=util.CRONTYPE.default,
+              cls=util.CanBeImported, type=util.CRONTYPE)
 @click.option('--entrypoint', help='Entrypoint for the docker command', required=False, cls=util.CanBeImported)
 @click.option('--environment', '-e', help='Environment variable to set in form key=value', multiple=True,
               cls=util.CanBeImported)
@@ -27,10 +30,10 @@ from ..kronbute import JobServer
 @click.pass_obj
 def create(server: JobServer, name: str, image: str, tag: str, schedule: str, timezone: Optional[str],
            environment: Union[Tuple[str], Dict[str, str]], group: Tuple[str], env_file: TextIO,
-           entrypoint: str, alias: Optional[str] = None):
+           entrypoint: str, crontype: str, alias: Optional[str] = None):
 
     job_id = server.create(name, image, tag, schedule, util.parse_env(environment, env_file), entrypoint, alias,
-                           group, timezone)
+                           group, timezone, crontype)
 
     message = click.style(f'{job_id}', fg='white', bold=True)
     click.echo(util.success(f"Job created, id is {message}."))

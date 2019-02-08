@@ -18,10 +18,10 @@ class JobServer:
         return self.server.get('api/jobs', job_id)
 
     def create(self, name: str, image: str, tag: str, schedule: str, env: Dict[str, str], entrypoint: str,
-               alias: Optional[str], groups: Tuple[str], timezone: str) -> Optional[int]:
+               alias: Optional[str], groups: Tuple[str], timezone: str, crontype: str) -> Optional[int]:
 
         data = {'name': name, 'image': image, 'tag': tag, 'schedule': schedule, 'entryPoint': entrypoint,
-                'environment': env, 'timeZone': timezone}
+                'environment': env, 'timeZone': timezone, 'cronType': crontype}
 
         if alias:
             data['alias'] = alias
