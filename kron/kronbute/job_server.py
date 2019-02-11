@@ -34,7 +34,7 @@ class JobServer:
 
     def edit(self, job_id: Union[int, str], name: Optional[str], image: Optional[str], tag: Optional[str],
              schedule: Optional[str], alias: Optional[str], env: Optional[Dict[str, str]],
-             entrypoint: Optional[str], groups: Tuple[str], timezone: str):
+             entrypoint: Optional[str], groups: Tuple[str], timezone: str, crontype: Optional[str]):
 
         current_job = self.server.get('api/jobs', job_id)
 
@@ -46,7 +46,8 @@ class JobServer:
                 'entryPoint': entrypoint or current_job['entryPoint'],
                 'groups': list(groups) or current_job['groups'],
                 'timeZone': timezone or current_job['timeZone'],
-                'environment': env or current_job['environment']
+                'environment': env or current_job['environment'],
+                'cronType': crontype or current_job['cronType']
                 }
 
         self.server.edit('api/jobs', job_id, data)
