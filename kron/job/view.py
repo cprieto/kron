@@ -20,6 +20,7 @@ def view(server: JobServer, job_id: Union[int, str]):
             ['Time Zone', current_job['timeZone']],
             ['Paused', current_job['paused']],
             ['Cron entry', current_job['schedule']],
+            ['Cron Type', current_job['cronType']],
             ['EntryPoint', util.format_none(current_job['entryPoint'])],
             ['Groups', ','.join(current_job['groups'])],
             ['Created on', f"{current_job['createdOn']} (UTC)"],

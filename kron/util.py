@@ -1,5 +1,7 @@
 import re
 import sys
+from enum import Enum
+
 import yaml
 import click
 from typing import Optional, Any, Union, Callable, Tuple, TextIO, Dict
@@ -239,3 +241,23 @@ def parse_env(values: Union[Tuple[str],Dict[str, str]], env_file: Optional[TextI
         else:
             res[entry.strip('\n')] = None
     return res
+
+class CronTypeParamType(click.ParamType):
+    name = 'crontype'
+    available_cron_types = ['UNIXCRON', 'QUARTZCRON']
+
+    @property
+    def default(self):
+        return self.available_cron_types[0]
+
+    def convert(self, value, param, ctx):
+        if value is None:
+            self.fail("Cron Type expression cannot be null")
+
+        if value.upper() not in self.available_cron_types:
+            self.fail(f"Cron Type only supports {self.available_cron_types}")
+
+        return value.upper()
+
+
+CRONTYPE = CronTypeParamType()
